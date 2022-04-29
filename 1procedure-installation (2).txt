@@ -1,0 +1,164 @@
+
+####################################  
+# Procédure d'installation outils DevOps/ITIL  #
+####################################
+La methode devops correspond 
+-Présentation de la méthode DevOps
+-Les outils de la methode DevOps
+
+GitLab est un système de contrôle de version
+GitLab est basé sur le logiciel de gestion de versions
+L'avantage majeur de GitLab est qu’il facilite grandement le développement logiciel agile et collaboratif.
+Plusieurs développeurs peuvent travailler en même temps sur un projet 
+La journalisation continue de toutes les opérations assure que les modifications apportées au code ne sont jamais perdues ni écrasées par mégarde
+
+
+GitLab est une application basée sur le Web qui possède une interface utilisateur graphique, mais peut aussi être installé sur son propre serveur.
+Les projets, qui renferment le code à éditer dans des archives numériques appelées repositories (référentiels), constituent l’élément central de GitLab.
+Les dossiers projet contiennent tous les contenus et fichiers du projet logiciel, qui peuvent être des fichiers JavaScript, HTML, CSS, PHP...
+
+
+sudo apt install curl ca-certificates apt-transport-https gnupg2 -y
+curl -s https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
+sudo nano /etc/apt/sources.list.d/gitlab_gitlab-ce.list
+	deb https://packages.gitlab.com/gitlab/gitlab-ce/debian/ bullseye main
+	deb-src https://packages.gitlab.com/gitlab/gitlab-ce/debian/ bullseye main
+	deb https://packages.gitlab.com/gitlab/gitlab-ce/debian/ buster main
+	deb-src https://packages.gitlab.com/gitlab/gitlab-ce/debian/ buster main
+sudo apt update
+sudo apt install gitlab-ceCopied!
+nano /etc/gitlab/gitlab.rb
+     	external_url 'https://gitlab.technical.local
+	 letsencrypt['enable'] = true
+ 	letsencrypt['contact_emails'] = ['youremail@yourdomain.com']
+ 	letsencrypt['auto_renew'] = true
+ 	letsencrypt['auto_renew_hour'] = 4
+ 	letsencrypt['auto_renew_day_of_month'] = "*/4"
+ 	letsencrypt['auto_renew_log_directory'] = '/var/log/gitlab/lets-encrypt'
+gitlab-ctl reconfigure
+cat /etc/gitlab/initial_root_password
+https://gitlab.example.com
+sudo crontab -e
+00 */3 * * *   root gitlab-rake gitlab:backup:create
+gitlab-rake gitlab:backup:create
+
+
+
+ANSIBLE----------------------------------------------------------------------------------------------------------------------------
+deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+apt update
+apt install ansible
+ssh-keygen
+ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.1.2
+
+DOCKER-----------------------------------------------------------------------------------------------------------------------------
+apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io
+systemctl start docker
+systemctl enable docker
+
+DOCKER-Compose--------------------------------------------------------------------------------------------------------------
+apt-get install apt-transport-https ca-certificates curl gnupg2 software-properties-common
+curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"
+apt-get update
+apt-get install docker-ce docker-ce-cli containerd.io
+systemctl start docker
+systemctl enable docker
+
+JENKINS-------------------------------------------------------------------------------------------------------------------------------
+wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
+sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+apt-get update
+nano sources.list
+
+apt-get -y install openjdk-8-jdk
+apt-get -y install jenkins
+url:
+192.168.1.5:8080
+192.168.1.5:8000
+cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+
+NAGIOS----------------------------------------------------------------------------------------------------------------------------------
+sudo apt update
+sudo apt install vim wget curl build-essential unzip openssl libssl-dev apache2 php libapache2-mod-php php-gd libgd-dev
+cd ~
+export VER="4.4.6"
+wget https://github.com/NagiosEnterprises/nagioscore/releases/download/nagios-$VER/nagios-$VER.tar.gz
+tar xvzf nagios-$VER.tar.gz
+cd nagios-$VER
+./configure --with-httpd-conf=/etc/apache2/sites-enabled
+sudo make install-groups-users
+sudo usermod -a -G nagios www-data
+sudo make all
+sudo make install
+sudo make install-daemoninit
+sudo make install-commandmode
+sudo make install-config
+sudo make install-webconf
+sudo a2enmod rewrite cgi
+sudo htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+sudo chown www-data:www-data /usr/local/nagios/etc/htpasswd.users
+sudo chmod 640 /usr/local/nagios/etc/htpasswd.users
+cd ~
+VER="2.3.3"
+wget https://github.com/nagios-plugins/nagios-plugins/releases/download/release-$VER/nagios-plugins-$VER.tar.gz
+tar xvf nagios-plugins-$VER.tar.gz
+cd nagios-plugins-$VER
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+
+sudo make
+sudo make install
+sudo ufw allow 80
+sudo ufw reload
+sudo systemctl restart apache2
+sudo systemctl start nagios.service
+
+GPLI----------------------------------------------------------------------------------------------------------------------------------------
+apt update && apt upgrade -y
+
+apt install apache2 php libapache2-mod-php mariadb-server -y
+
+apt install php-mysqli php-mbstring php-curl php-gd php-simplexml php-intl php-ldap php-apcu php-xmlrpc php-cas php-zip php-bz2 php-ldap php-imap -y
+
+mysql_secure_installation
+changement du mot de passe
+accept les utilisateurs : oui
+accept l'utilisateur root : oui
+bases de donnée test : non
+flush privilege : oui
+
+mysql -u root -p
+create database db_glpi;
+grant all privileges on db_glpi.* to admindb_glpi@localhost identified by "password";
+exit;
+nano /etc/apache2/sites-available/000-default.conf
+<Directory /var/www/html>
+Options Indexes FollowSymLinks
+AllowOverride All
+Require all granted
+</Directory>
+service apache2 restart
+cd /tmp
+wget https://github.com/glpi-project/glpi/releases/download/9.5.2/glpi-9.5.2.tgz
+tar -xvzf glpi-9.5.2.tgz
+shopt -s dotglob
+rm /var/www/html/index.html
+cp -r glpi/* /var/www/html/
+chown -R www-data /var/www/html
+
+SPLUNK-----------------------------------------------------------------------------------------------------------------------------------
+
+# wget -O splunk-8.2.3-cd0848707637-linux-2.6-amd64.deb 'https://download.splunk.com/products/splunk/releases/8.2.3/linux/splunk-8.2.3-cd0848707637-linux-2.6-amd64.deb'
+
+FOG----------------------------------------------------------------------------------------------------------------
+cd /opt
+git clone https://github.com/fogproject/fogproject.git
+cd fogproject/bin
+./installfog.sh
